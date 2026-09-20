@@ -64,6 +64,9 @@ def dispatch(body: DispatchRequest, db: Session = Depends(get_db)):
     ticket = db.get(CallTicket, body.call_id)
     if not ticket:
         raise HTTPException(404, "呼梯不存在")
+    # 满员拒绝是终态：即使之后轿厢清客腾出容量，旧单也不再派工，需重新登记。
+    if ticket.status == "rejected":
+        raise HTTPException(409, "该呼梯曾因轿厢满员被拒绝，请重新登记")
     if ticket.status != "waiting":
         raise HTTPException(400, "呼梯已处理")
     car_rows = db.scalars(

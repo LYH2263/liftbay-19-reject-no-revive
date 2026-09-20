@@ -22,6 +22,11 @@ export default function CallsPage() {
       reload();
     } catch (e) { setErr(e instanceof Error ? e.message : String(e)); }
   }
+  const STATUS_TEXT: Record<string, string> = {
+    waiting: "待派",
+    assigned: "已派",
+    rejected: "满员拒绝",
+  };
   return (<>
     <h2>呼梯</h2>
     <div className="toolbar">
@@ -33,6 +38,8 @@ export default function CallsPage() {
     </div>
     {err && <div className="err">{err}</div>}
     <table className="table"><thead><tr><th>ID</th><th>楼层</th><th>方向</th><th>人数</th><th>状态</th><th>轿厢</th><th>评分</th></tr></thead>
-    <tbody>{rows.map(c => <tr key={c.id}><td>{c.id}</td><td className="mono">{c.floor}</td><td>{c.direction}</td><td>{c.passengers}</td><td>{c.status}</td><td>{c.assigned_car_id ?? "—"}</td><td className="mono">{c.score || "—"}</td></tr>)}</tbody></table>
+    <tbody>{rows.map(c => <tr key={c.id}><td>{c.id}</td><td className="mono">{c.floor}</td><td>{c.direction}</td><td>{c.passengers}</td>
+      <td>{STATUS_TEXT[c.status] ?? c.status}{c.status === "rejected" && <div className="err">该单已终结，腾出容量也不再派，请重新登记</div>}</td>
+      <td>{c.assigned_car_id ?? "—"}</td><td className="mono">{c.score || "—"}</td></tr>)}</tbody></table>
   </>);
 }
