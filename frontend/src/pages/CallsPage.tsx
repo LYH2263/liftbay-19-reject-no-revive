@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "../api/client";
 type B = { id: number; name: string; floors: number };
 type Call = { id: number; floor: number; direction: string; passengers: number; status: string; assigned_car_id: number | null; score: string };
+const STATUS_LABEL: Record<string, string> = { waiting: "待派工", assigned: "已派工", rejected: "已拒绝（满员）" };
 export default function CallsPage() {
   const [buildings, setBuildings] = useState<B[]>([]);
   const [rows, setRows] = useState<Call[]>([]);
@@ -33,6 +34,6 @@ export default function CallsPage() {
     </div>
     {err && <div className="err">{err}</div>}
     <table className="table"><thead><tr><th>ID</th><th>楼层</th><th>方向</th><th>人数</th><th>状态</th><th>轿厢</th><th>评分</th></tr></thead>
-    <tbody>{rows.map(c => <tr key={c.id}><td>{c.id}</td><td className="mono">{c.floor}</td><td>{c.direction}</td><td>{c.passengers}</td><td>{c.status}</td><td>{c.assigned_car_id ?? "—"}</td><td className="mono">{c.score || "—"}</td></tr>)}</tbody></table>
+    <tbody>{rows.map(c => <tr key={c.id}><td>{c.id}</td><td className="mono">{c.floor}</td><td>{c.direction}</td><td>{c.passengers}</td><td className={c.status === "rejected" ? "status-rejected" : ""}>{STATUS_LABEL[c.status] ?? c.status}</td><td>{c.assigned_car_id ?? "—"}</td><td className="mono">{c.score || "—"}</td></tr>)}</tbody></table>
   </>);
 }

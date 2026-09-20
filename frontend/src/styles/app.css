@@ -230,6 +230,7 @@ button {
   background: var(--shaft-teal); color: #042018; font-weight: 700;
   border: none; cursor: pointer;
 }
+button:disabled { opacity: .4; cursor: not-allowed; }
 .table { width: 100%; border-collapse: collapse; }
 .table th, .table td {
   border-bottom: 1px solid var(--line); padding: .5rem .35rem;
@@ -237,6 +238,10 @@ button {
 }
 .mono { font-family: "IBM Plex Mono", monospace; }
 .err { color: #ff8e8e; } .ok { color: #7ddea0; }
+.hint { color: var(--shaft-muted); font-size: .8rem; margin: 0 0 .6rem; }
+.rejected-title { margin: 1.4rem 0 .4rem; font-size: 1rem; color: var(--full); }
+.row-rejected td { color: var(--shaft-muted); }
+.status-rejected { color: var(--full); }
 
 /* Keep page-level shaft helpers for /cars if visited */
 .shaft-wrap { display: flex; gap: 1rem; overflow-x: auto; padding-bottom: .5rem; }

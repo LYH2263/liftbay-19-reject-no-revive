@@ -64,8 +64,11 @@ def dispatch(body: DispatchRequest, db: Session = Depends(get_db)):
     ticket = db.get(CallTicket, body.call_id)
     if not ticket:
         raise HTTPException(404, "呼梯不存在")
+    if ticket.status == "rejected":
+        # 满员拒绝为终态：即使之后腾出容量也不可再派，须重新登记
+        raise HTTPException(409, "该呼梯已因满员被拒绝，不可再派工，请重新登记")
     if ticket.status != "waiting":
-        raise HTTPException(400, "呼梯已处理")
+        raise HTTPException(400, "呼梯已派工")
     car_rows = db.scalars(
         select(ElevatorCar).where(ElevatorCar.building_id == ticket.building_id)
     ).all()
@@ -75,7 +78,14 @@ def dispatch(body: DispatchRequest, db: Session = Depends(get_db)):
     call = CallRequest(ticket.id, ticket.floor, ticket.direction, ticket.passengers)
     best = pick_car(cars, call)
     if best is None:
-        db.add(DispatchLog(call_id=ticket.id, car_id=None, detail="全部轿厢满员，拒绝派工"))
+        dir_cn = {"up": "上行", "down": "下行"}.get(ticket.direction, ticket.direction)
+        db.add(
+            DispatchLog(
+                call_id=ticket.id,
+                car_id=None,
+                detail=f"全部轿厢满员（{ticket.floor} 层·{dir_cn}·{ticket.passengers} 人），拒绝派工",
+            )
+        )
         ticket.status = "rejected"
         db.commit()
         db.refresh(ticket)
